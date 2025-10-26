@@ -4,7 +4,12 @@ A simple test script demonstrating how to fetch all verified token prices from F
 
 ## What This Does
 
-This script fetches all verified tokens from Faktory and displays them in a clean JSON format similar to major exchanges. It demonstrates pagination handling and provides the complete token dataset that builders can use for trading interfaces, analytics, or other applications.
+This repository contains scripts that:
+
+1. Fetch all verified tokens from Faktory and display them in a clean JSON format similar to major exchanges
+2. Retrieve detailed information about specific DEX and token contracts
+
+Both scripts demonstrate different aspects of the Faktory API integration for trading interfaces, analytics, or other applications.
 
 ## Quick Start
 
@@ -32,15 +37,21 @@ Add to `package.json`:
 }
 ```
 
-Copy the `test.js` file and run:
+Run either script:
 
 ```bash
+# For the token price list
 node test.js
+
+# For specific DEX contract information
+node test-getToken.js
 ```
 
 For more SDK configuration options, see the [full documentation](https://www.npmjs.com/package/@faktoryfun/core-sdk).
 
-## Sample Output
+## Token Price List (test.js)
+
+### Sample Output
 
 The script will fetch all tokens and display them like this:
 
@@ -84,6 +95,51 @@ Total tokens: 122
 Tokens with 24h changes: 0
 DAO tokens: 15
 ```
+
+## DEX Contract Information (test-getToken.js)
+
+### Sample Output
+
+The script retrieves complete information about specified DEX contracts:
+
+```json
+FAKFUN DEX Contract Info:
+{
+  "success": true,
+  "data": {
+    "symbol": "FAKFUN",
+    "name": "faktory fun",
+    "dexContract": "SP2ZNGJ85ENDY6QRHQ5P2D4FXKGZWCKTB2T0Z55KS.sbtc-fakfun-amm-lp-v1",
+    "tokenContract": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.fakfun-faktory",
+    "price": 3.3506525860372977e-10,
+    "tradingVolume": 62810070,
+    // Full contract details...
+  }
+}
+
+B DEX Contract Info:
+{
+  "success": true,
+  "data": {
+    "symbol": "B",
+    "name": "Blocks",
+    "dexContract": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.b-faktory-pool",
+    "tokenContract": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.b-faktory",
+    "price": 7.755664226813156e-10,
+    "tradingVolume": 84341438,
+    // Full contract details...
+  }
+}
+
+Available SDK Methods:
+[...list of SDK methods...]
+```
+
+### Why This Script Helps
+
+This script is useful for retrieving specific DEX contract information for graduated tokens trading on AMMs. It demonstrates the proper approach when working with tokens that have moved beyond the bonding curve phase.
+
+The common error `Unchecked(UndefinedFunction("get-buyable-tokens"))` occurs because `getIn()` only works with bonding curve contracts, not with graduated tokens on AMM contracts. This script shows how to use `getToken()` instead to get the necessary contract information.
 
 ## Data Fields
 
@@ -133,15 +189,31 @@ const topByVolume = allTokens.sort((a, b) => b.tradingVolume - a.tradingVolume);
 const tokensWithLogos = allTokens.filter((t) => t.logoUrl);
 ```
 
-## SDK Methods Used
-
-This test demonstrates the `getTokenPrices()` method:
+### Get DEX Contract Information
 
 ```javascript
+// Get specific DEX contract details
+const dexInfo = await sdk.getToken(
+  "SP2ZNGJ85ENDY6QRHQ5P2D4FXKGZWCKTB2T0Z55KS.sbtc-fakfun-amm-lp-v1"
+);
+console.log(dexInfo.data.symbol, dexInfo.data.price);
+```
+
+## SDK Methods Used
+
+This repository demonstrates these SDK methods:
+
+```javascript
+// Get token prices (with pagination)
 const prices = await sdk.getTokenPrices({
   limit: 50, // max 50 per request
   offset: 0, // pagination offset
 });
+
+// Get specific token/DEX information
+const tokenInfo = await sdk.getToken(
+  "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.fakfun-faktory"
+);
 ```
 
 ## API Details
